@@ -1,6 +1,6 @@
-# Bắt buộc gọi monkey_patch() đầu tiên khi deploy lên Render sử dụng eventlet
-import eventlet
-eventlet.monkey_patch()
+# Bắt buộc gọi monkey.patch_all() đầu tiên khi deploy lên Render sử dụng gevent
+from gevent import monkey
+monkey.patch_all()
 
 from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -16,10 +16,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'flappy_bird_secret_key_2026_senior_dev'
 app.config['JSON_AS_ASCII'] = False  # Hỗ trợ hiển thị tiếng Việt chuẩn UTF-8
 
-# Khởi tạo SocketIO với eventlet, cho phép mọi nguồn kết nối (CORS)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+# Khởi tạo SocketIO với gevent, cho phép mọi nguồn kết nối (CORS)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
 
-DATABASE = 'database.db'
+DATABASE = '/tmp/database.db'
 
 # --- CẤU TRÚC DỮ LIỆU IN-MEMORY (RAM) ---
 rooms = {}             # Quản lý phòng chơi: { "ROOM_ID": { "status", "pipe_seed", "players": { sid: {...} } } }
@@ -460,5 +460,5 @@ def index():
     return jsonify({"status": "Flappy Bird Backend is Online", "active_rooms": len(rooms), "online_users": len(online_users)})
 
 if __name__ == '__main__':
-    # Chạy trên Cổng 5000 - Render sẽ sử dụng Gunicorn với tham số -k eventlet trong config thực tế.
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, host='0.0.0.0', port=port)
