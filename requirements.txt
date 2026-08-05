@@ -5,3 +5,4 @@ gevent-websocket
 eventlet
 gunicorn
 werkzeug
+flask-cors
