@@ -34,12 +34,12 @@ AVAILABLE_COLORS = ['Red', 'Blue', 'Green', 'Pink']
 
 
 # --- CƠ SỞ DỮ LIỆU SQLITE ---
-def get_db_connection():
+def get_db_connection(data=None):
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
+def init_db(data=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -75,7 +75,7 @@ init_db()
 
 
 # --- CÁC HÀM TIỆN ÍCH CHO GAME ---
-def generate_room_code():
+def generate_room_code(data=None):
     while True:
         code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
         if code not in rooms:
@@ -130,7 +130,7 @@ def check_game_over(room_code):
 # --- REST API: AUTHENTICATION ---
 
 @app.route('/api/register', methods=['POST', 'OPTIONS'])
-def register():
+def register(data=None):
     if request.method == 'OPTIONS':
         return '', 200
 
@@ -159,7 +159,7 @@ def register():
         conn.close()
 
 @app.route('/api/login', methods=['POST', 'OPTIONS'])
-def login():
+def login(data=None):
     if request.method == 'OPTIONS':
         return '', 200
 
@@ -194,7 +194,7 @@ def handle_authenticate(data):
         print(f"[AUTH] User {account_id} connected with sid: {sid}")
 
 @socketio.on('disconnect')
-def handle_disconnect():
+def handle_disconnect(data=None):
     sid = request.sid
     print(f"[-] Client disconnected: {sid}")
     
@@ -510,7 +510,7 @@ def on_player_died(data):
 
 # API Test Server
 @app.route('/')
-def index():
+def index(data=None):
     return jsonify({"status": "Flappy Bird Modded by Phuc Trong is Online", "active_rooms": len(rooms), "online_users": len(online_users)})
 
 if __name__ == '__main__':
